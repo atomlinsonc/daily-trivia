@@ -1,4 +1,4 @@
-# Daily Trivia
+# Daily Potpourri
 
 A daily trivia game for friends, hosted on GitHub Pages.
 
