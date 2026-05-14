@@ -1,0 +1,68 @@
+{
+  "date": "2026-05-14",
+  "title": "Guess the Chain Restaurant",
+  "subtitle": "From the inside out — name the chain from one interior photo.",
+  "secondsPerRound": 20,
+  "rounds": [
+    {
+      "image": "images/applebees.webp",
+      "answer": "Applebee's",
+      "aliases": ["applebees", "applebee", "applebees neighborhood grill bar", "applebees grill bar"]
+    },
+    {
+      "image": "images/benihana.webp",
+      "answer": "Benihana",
+      "aliases": ["benihanas"]
+    },
+    {
+      "image": "images/bjs-brewhouse.jpg",
+      "answer": "BJ's Restaurant & Brewhouse",
+      "aliases": ["bjs", "bjs brewhouse", "bjs restaurant", "bjs restaurant and brewhouse", "bjs restaurant brewhouse"]
+    },
+    {
+      "image": "images/buffalo-wild-wings.webp",
+      "answer": "Buffalo Wild Wings",
+      "aliases": ["bdubs", "b dubs", "bww", "buffalo wings"]
+    },
+    {
+      "image": "images/cheesecake-factory.webp",
+      "answer": "The Cheesecake Factory",
+      "aliases": ["cheesecake factory", "cheesecake"]
+    },
+    {
+      "image": "images/chilis.jpg",
+      "answer": "Chili's Grill & Bar",
+      "aliases": ["chilis", "chili", "chilis grill bar", "chilis grill and bar"]
+    },
+    {
+      "image": "images/cracker-barrel.webp",
+      "answer": "Cracker Barrel",
+      "aliases": ["cracker barrel old country store", "crackerbarrel"]
+    },
+    {
+      "image": "images/ihop.jpg",
+      "answer": "IHOP",
+      "aliases": ["i hop", "international house of pancakes", "international house pancakes"]
+    },
+    {
+      "image": "images/olive-garden.jpg",
+      "answer": "Olive Garden",
+      "aliases": ["olivegarden", "the olive garden"]
+    },
+    {
+      "image": "images/outback.jpg",
+      "answer": "Outback Steakhouse",
+      "aliases": ["outback", "the outback", "outback steak house"]
+    },
+    {
+      "image": "images/pf-changs.jpg",
+      "answer": "P.F. Chang's",
+      "aliases": ["pf changs", "pf chang", "p f changs", "pf changs china bistro", "pf changs china", "p.f. changs china bistro"]
+    },
+    {
+      "image": "images/texas-roadhouse.webp",
+      "answer": "Texas Roadhouse",
+      "aliases": ["texasroadhouse", "the texas roadhouse"]
+    }
+  ]
+}
