@@ -133,10 +133,11 @@ async function renderPlayerScreen() {
   }
   const list = $("player-list");
   list.innerHTML = "";
-  if (!players.length) {
+  const visiblePlayers = players.filter(p => !p.name?.startsWith("_"));
+  if (!visiblePlayers.length) {
     list.innerHTML = `<p class="muted small">No players yet — add yourself below.</p>`;
   } else {
-    players
+    visiblePlayers
       .slice()
       .sort((a, b) => a.name.localeCompare(b.name))
       .forEach(p => {
@@ -370,6 +371,7 @@ async function renderLeaderboard() {
     }
   }
   rows = rows
+    .filter(p => !p.name?.startsWith("_"))
     .filter(p => p.gamesPlayed > 0 || (p.totalScore || 0) > 0)
     .sort((a, b) => (b.totalScore || 0) - (a.totalScore || 0));
   $("leaderboard-source").textContent = source;

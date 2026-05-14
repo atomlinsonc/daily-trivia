@@ -1,18 +1,18 @@
 <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" role="img" aria-label="Daily Potpourri">
   <defs>
-    <linearGradient id="ringGrad" x1="20%" y1="100%" x2="80%" y2="0%">
+    <linearGradient id="ringGrad" x1="15%" y1="95%" x2="85%" y2="5%">
       <stop offset="0%" stop-color="#1a1f7c"/>
       <stop offset="100%" stop-color="#8a25d8"/>
     </linearGradient>
     <linearGradient id="markGrad" x1="20%" y1="100%" x2="80%" y2="0%">
       <stop offset="0%" stop-color="#1a1f7c"/>
-      <stop offset="100%" stop-color="#6a1bb1"/>
+      <stop offset="100%" stop-color="#5e16a3"/>
     </linearGradient>
   </defs>
-  <circle cx="100" cy="100" r="80" fill="none" stroke="url(#ringGrad)" stroke-width="16"/>
-  <path d="M 70 78
-           a 30 30 0 1 1 30 36
-           v 14"
-        fill="none" stroke="url(#markGrad)" stroke-width="22" stroke-linecap="round" stroke-linejoin="round"/>
-  <circle cx="100" cy="148" r="12" fill="url(#markGrad)"/>
+  <circle cx="100" cy="100" r="80" fill="none" stroke="url(#ringGrad)" stroke-width="18"/>
+  <path d="M 68 76
+           a 32 32 0 1 1 32 36
+           v 12"
+        fill="none" stroke="url(#markGrad)" stroke-width="26" stroke-linecap="round" stroke-linejoin="round"/>
+  <circle cx="100" cy="148" r="14" fill="url(#markGrad)"/>
 </svg>
