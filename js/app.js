@@ -359,10 +359,10 @@ async function renderLeaderboard() {
   let rows = loadPlayers();
   let source = "local device";
   if (FIREBASE_ENABLED) {
+    source = "shared (Firebase)";
     const remote = await fbFetchLeaderboard();
-    if (remote && remote.length) {
+    if (remote) {
       rows = remote;
-      source = "shared (Firebase)";
       localStorage.setItem(LS_LEADERBOARD_KEY, JSON.stringify(remote));
     } else {
       const cached = localStorage.getItem(LS_LEADERBOARD_KEY);
@@ -418,6 +418,17 @@ async function loadTodaysGame() {
   throw new Error("No game found.");
 }
 
+async function backfillLocalPlayersToFirebase() {
+  if (!FIREBASE_ENABLED) return;
+  const remote = await fbFetchAllPlayers();
+  if (!remote) return;
+  const remoteIds = new Set(remote.map(p => p.id));
+  const locals = loadPlayers().filter(p => !remoteIds.has(p.id) && (p.totalScore > 0 || p.gamesPlayed > 0));
+  for (const p of locals) {
+    await fbUpsertPlayer(p);
+  }
+}
+
 (async function init() {
   try {
     game = await loadTodaysGame();
@@ -426,6 +437,7 @@ async function loadTodaysGame() {
     return;
   }
   renderTopbar();
+  await backfillLocalPlayersToFirebase();
   const player = getCurrentPlayer();
   if (player) {
     goToIntro();
