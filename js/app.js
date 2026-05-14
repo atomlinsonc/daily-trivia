@@ -200,6 +200,21 @@ async function goToIntro() {
   $("intro-title").textContent = game.title || "Today's Game";
   $("intro-desc").textContent = game.subtitle || "";
   $("game-subtitle").textContent = game.title || "";
+  const roundCount = (game.rounds || []).length;
+  const rulesByType = {
+    orbits: [
+      `${roundCount} planets to place. Up to <strong>100 points</strong> total.`,
+      "Closer to the real orbital distance = more points.",
+      "Click the canvas to set each orbit, nudge to fine-tune, then lock it in."
+    ],
+    default: [
+      `${roundCount} rounds. Up to <strong>100 points</strong> total.`,
+      "Faster guesses earn more points.",
+      "Type your answer and hit enter."
+    ]
+  };
+  const rules = rulesByType[game.type] || rulesByType.default;
+  $("intro-rules").innerHTML = rules.map(r => `<li>${r}</li>`).join("");
   const player = getCurrentPlayer();
   const note = $("already-played-note");
   if (player && player.playedDates && player.playedDates.includes(game.date)) {
