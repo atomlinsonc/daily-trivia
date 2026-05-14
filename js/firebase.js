@@ -9,12 +9,12 @@
 //   5. Commit + push. GitHub Pages will redeploy automatically.
 
 export const firebaseConfig = {
-  apiKey: "",
-  authDomain: "",
-  projectId: "",
-  storageBucket: "",
-  messagingSenderId: "",
-  appId: ""
+  apiKey: "AIzaSyAZ7Oa8PEs1nhAqCTUZ8qdPVLZJSOPe9ac",
+  authDomain: "daily-trivia-9a25a.firebaseapp.com",
+  projectId: "daily-trivia-9a25a",
+  storageBucket: "daily-trivia-9a25a.firebasestorage.app",
+  messagingSenderId: "473934597875",
+  appId: "1:473934597875:web:c8793424acf39a5e357186"
 };
 
 export const FIREBASE_ENABLED = Boolean(firebaseConfig.apiKey && firebaseConfig.projectId);
