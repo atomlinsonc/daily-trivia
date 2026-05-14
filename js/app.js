@@ -545,19 +545,25 @@ function renderOrbitsCanvas(extra) {
 
   (game.references || []).forEach(ref => {
     const r = ref.distanceAu * orbitsScale;
-    ctx.strokeStyle = "rgba(200,210,240,0.95)";
-    ctx.setLineDash([5, 4]);
-    ctx.lineWidth = 1.5;
+    // Bright dashed ring for references — Mercury is tiny by design, so make it pop.
+    ctx.strokeStyle = "rgba(120,200,255,0.95)";
+    ctx.setLineDash([6, 4]);
+    ctx.lineWidth = 2;
     ctx.beginPath();
     ctx.arc(orbitsCx, orbitsCy, r, 0, Math.PI * 2);
     ctx.stroke();
     ctx.setLineDash([]);
-    // Label placed above the top of the ring, centered, never clipped at the right edge.
-    ctx.fillStyle = "rgba(220,225,245,0.95)";
-    ctx.font = "11px -apple-system, system-ui, sans-serif";
+    // Tiny planet dot at top of the orbit to anchor the eye.
+    ctx.fillStyle = "#7ec8ff";
+    ctx.beginPath();
+    ctx.arc(orbitsCx, orbitsCy - r, 3, 0, Math.PI * 2);
+    ctx.fill();
+    // Label centered above each ring, never clipped at the edges.
+    ctx.fillStyle = "rgba(220,235,255,0.98)";
+    ctx.font = "bold 11px -apple-system, system-ui, sans-serif";
     ctx.textAlign = "center";
     ctx.textBaseline = "bottom";
-    ctx.fillText(ref.planet, orbitsCx, orbitsCy - r - 4);
+    ctx.fillText(ref.planet, orbitsCx, orbitsCy - r - 6);
   });
 
   orbitsLocked.forEach(l => {
