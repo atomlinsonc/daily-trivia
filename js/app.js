@@ -545,17 +545,19 @@ function renderOrbitsCanvas(extra) {
 
   (game.references || []).forEach(ref => {
     const r = ref.distanceAu * orbitsScale;
-    ctx.strokeStyle = "rgba(180,190,220,0.8)";
+    ctx.strokeStyle = "rgba(200,210,240,0.95)";
     ctx.setLineDash([5, 4]);
-    ctx.lineWidth = 1;
+    ctx.lineWidth = 1.5;
     ctx.beginPath();
     ctx.arc(orbitsCx, orbitsCy, r, 0, Math.PI * 2);
     ctx.stroke();
     ctx.setLineDash([]);
-    ctx.fillStyle = "rgba(200,210,240,0.95)";
+    // Label placed above the top of the ring, centered, never clipped at the right edge.
+    ctx.fillStyle = "rgba(220,225,245,0.95)";
     ctx.font = "11px -apple-system, system-ui, sans-serif";
-    ctx.textAlign = "left";
-    ctx.fillText(ref.planet, orbitsCx + r + 4, orbitsCy - 4);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "bottom";
+    ctx.fillText(ref.planet, orbitsCx, orbitsCy - r - 4);
   });
 
   orbitsLocked.forEach(l => {
@@ -567,7 +569,9 @@ function renderOrbitsCanvas(extra) {
     ctx.stroke();
     ctx.fillStyle = "rgba(255,181,71,0.85)";
     ctx.font = "11px -apple-system, system-ui, sans-serif";
-    ctx.fillText(l.planet, orbitsCx + r + 4, orbitsCy + 12);
+    ctx.textAlign = "center";
+    ctx.textBaseline = "top";
+    ctx.fillText(l.planet, orbitsCx, orbitsCy + r + 3);
   });
 
   if (!orbitsRoundLocked && orbitsHoverAu > 0) {
@@ -599,18 +603,19 @@ function renderOrbitsCanvas(extra) {
     ctx.setLineDash([]);
   }
 
-  // Sun
-  const sunGrad = ctx.createRadialGradient(orbitsCx, orbitsCy, 0, orbitsCx, orbitsCy, 22);
+  // Sun — kept small so Mercury's tiny orbit stays visible at this scale.
+  const sunGlowRadius = 9;
+  const sunGrad = ctx.createRadialGradient(orbitsCx, orbitsCy, 0, orbitsCx, orbitsCy, sunGlowRadius);
   sunGrad.addColorStop(0, "#fff3a0");
-  sunGrad.addColorStop(0.45, "#ffb547");
+  sunGrad.addColorStop(0.55, "#ffb547");
   sunGrad.addColorStop(1, "rgba(255,122,89,0)");
   ctx.fillStyle = sunGrad;
   ctx.beginPath();
-  ctx.arc(orbitsCx, orbitsCy, 22, 0, Math.PI * 2);
+  ctx.arc(orbitsCx, orbitsCy, sunGlowRadius, 0, Math.PI * 2);
   ctx.fill();
   ctx.fillStyle = "#fff8d0";
   ctx.beginPath();
-  ctx.arc(orbitsCx, orbitsCy, 4, 0, Math.PI * 2);
+  ctx.arc(orbitsCx, orbitsCy, 2.5, 0, Math.PI * 2);
   ctx.fill();
 }
 
