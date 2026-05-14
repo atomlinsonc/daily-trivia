@@ -52,7 +52,7 @@
       </div>
     </section>
 
-    <!-- Game play -->
+    <!-- Game play: image-guess type -->
     <section id="game-screen" class="screen hidden">
       <div class="game-meta">
         <span id="round-indicator">Round 1 of 12</span>
@@ -67,6 +67,30 @@
         <button type="submit" class="primary">Guess</button>
       </form>
       <div id="feedback" class="feedback"></div>
+    </section>
+
+    <!-- Game play: orbits type -->
+    <section id="orbits-screen" class="screen hidden">
+      <div class="game-meta">
+        <span id="orbits-round-indicator"></span>
+        <span id="orbits-score-indicator">Score: 0</span>
+      </div>
+      <div class="orbits-target">
+        <h3>Draw <span id="orbits-target-name"></span>'s orbit</h3>
+        <p class="muted small">Click anywhere in the canvas to set the orbital radius. Use the Sun, Mercury, and Neptune as your scale references.</p>
+      </div>
+      <div class="canvas-wrap">
+        <canvas id="orbit-canvas"></canvas>
+      </div>
+      <div class="orbits-controls">
+        <div id="orbits-readout" class="muted small">Click in the canvas to set the orbital radius.</div>
+        <div class="orbits-buttons">
+          <button id="orbits-nudge-down" class="link-btn" disabled>− 0.1 AU</button>
+          <button id="orbits-nudge-up" class="link-btn" disabled>+ 0.1 AU</button>
+          <button id="orbits-submit-btn" class="primary" disabled>Lock in orbit</button>
+        </div>
+      </div>
+      <div id="orbits-feedback" class="feedback"></div>
     </section>
 
     <!-- Results -->

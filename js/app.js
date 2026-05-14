@@ -111,7 +111,7 @@ const breakdown = [];   // [{ answer, guess, correct, points, elapsed }]
 
 // ---------- screens ----------
 function show(screenId) {
-  ["player-screen","intro-screen","game-screen","results-screen"].forEach(id => {
+  ["player-screen","intro-screen","game-screen","orbits-screen","results-screen"].forEach(id => {
     $(id).classList.add("hidden");
   });
   $(screenId).classList.remove("hidden");
@@ -218,8 +218,15 @@ function startGame() {
   roundIdx = 0;
   totalScore = 0;
   breakdown.length = 0;
-  show("game-screen");
-  loadRound();
+  if (game.type === "orbits") {
+    orbitsLocked.length = 0;
+    show("orbits-screen");
+    initOrbitsCanvas();
+    startOrbitsRound();
+  } else {
+    show("game-screen");
+    loadRound();
+  }
 }
 
 function loadRound() {
@@ -399,6 +406,13 @@ function escapeHtml(s) {
 
 // ---------- boot ----------
 async function loadTodaysGame() {
+  // Optional ?date=YYYY-MM-DD override for previewing future games.
+  const params = new URLSearchParams(location.search);
+  const override = params.get("date");
+  if (override && /^\d{4}-\d{2}-\d{2}$/.test(override)) {
+    const res = await fetch(`games/${override}.json`, { cache: "no-store" });
+    if (res.ok) return await res.json();
+  }
   // Prefer today's date, fall back to the most recent file listed in games/index.json.
   const today = todayLocalISO();
   try {
@@ -431,6 +445,242 @@ async function backfillLocalPlayersToFirebase() {
   }
 }
 
+// ---------- orbits game ----------
+const orbitsLocked = []; // [{ planet, drawnAu, actualAu, pts }]
+let orbitsCanvas = null;
+let orbitsCtx = null;
+let orbitsCx = 0, orbitsCy = 0;
+let orbitsScale = 1; // px per AU
+let orbitsStars = [];
+let orbitsDraftAu = 0;
+let orbitsHoverAu = 0;
+let orbitsRoundLocked = false; // true while showing feedback between rounds
+
+function initOrbitsCanvas() {
+  orbitsCanvas = $("orbit-canvas");
+  orbitsCtx = orbitsCanvas.getContext("2d");
+  const wrap = orbitsCanvas.parentElement;
+  const padding = 20;
+  const targetSize = Math.min(600, wrap.clientWidth - padding);
+  const dpr = window.devicePixelRatio || 1;
+  orbitsCanvas.style.width = targetSize + "px";
+  orbitsCanvas.style.height = targetSize + "px";
+  orbitsCanvas.width = targetSize * dpr;
+  orbitsCanvas.height = targetSize * dpr;
+  orbitsCtx.scale(dpr, dpr);
+  orbitsCx = targetSize / 2;
+  orbitsCy = targetSize / 2;
+  const neptune = (game.references || []).find(r => r.planet === "Neptune");
+  const maxAu = neptune ? neptune.distanceAu : 30;
+  orbitsScale = (targetSize / 2 * 0.94) / maxAu;
+  orbitsStars = [];
+  for (let i = 0; i < 100; i++) {
+    orbitsStars.push({
+      x: Math.random() * targetSize,
+      y: Math.random() * targetSize,
+      r: Math.random() * 1.3 + 0.2,
+      a: Math.random() * 0.5 + 0.2
+    });
+  }
+  orbitsCanvas.onclick = onOrbitsCanvasClick;
+  orbitsCanvas.onmousemove = onOrbitsCanvasMove;
+  orbitsCanvas.onmouseleave = () => { orbitsHoverAu = 0; renderOrbitsCanvas(); };
+}
+
+function distToCenter(clientX, clientY) {
+  const rect = orbitsCanvas.getBoundingClientRect();
+  const x = clientX - rect.left;
+  const y = clientY - rect.top;
+  const dx = x - orbitsCx, dy = y - orbitsCy;
+  return Math.sqrt(dx * dx + dy * dy);
+}
+
+function onOrbitsCanvasClick(e) {
+  if (orbitsRoundLocked) return;
+  const distPx = distToCenter(e.clientX, e.clientY);
+  orbitsDraftAu = Math.max(0, distPx / orbitsScale);
+  $("orbits-submit-btn").disabled = orbitsDraftAu <= 0;
+  $("orbits-nudge-down").disabled = orbitsDraftAu <= 0;
+  $("orbits-nudge-up").disabled = orbitsDraftAu <= 0;
+  updateOrbitsReadout();
+  renderOrbitsCanvas();
+}
+
+function onOrbitsCanvasMove(e) {
+  if (orbitsRoundLocked) return;
+  const distPx = distToCenter(e.clientX, e.clientY);
+  orbitsHoverAu = distPx / orbitsScale;
+  renderOrbitsCanvas();
+}
+
+function renderOrbitsCanvas(extra) {
+  const ctx = orbitsCtx;
+  const w = parseFloat(orbitsCanvas.style.width);
+  const h = parseFloat(orbitsCanvas.style.height);
+  ctx.fillStyle = "#0a0d18";
+  ctx.fillRect(0, 0, w, h);
+  ctx.fillStyle = "#ccd";
+  orbitsStars.forEach(s => {
+    ctx.globalAlpha = s.a;
+    ctx.beginPath();
+    ctx.arc(s.x, s.y, s.r, 0, Math.PI * 2);
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  (game.references || []).forEach(ref => {
+    const r = ref.distanceAu * orbitsScale;
+    ctx.strokeStyle = "rgba(180,190,220,0.8)";
+    ctx.setLineDash([5, 4]);
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(orbitsCx, orbitsCy, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+    ctx.fillStyle = "rgba(200,210,240,0.95)";
+    ctx.font = "11px -apple-system, system-ui, sans-serif";
+    ctx.textAlign = "left";
+    ctx.fillText(ref.planet, orbitsCx + r + 4, orbitsCy - 4);
+  });
+
+  orbitsLocked.forEach(l => {
+    const r = l.drawnAu * orbitsScale;
+    ctx.strokeStyle = "rgba(255,181,71,0.55)";
+    ctx.lineWidth = 1.5;
+    ctx.beginPath();
+    ctx.arc(orbitsCx, orbitsCy, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.fillStyle = "rgba(255,181,71,0.85)";
+    ctx.font = "11px -apple-system, system-ui, sans-serif";
+    ctx.fillText(l.planet, orbitsCx + r + 4, orbitsCy + 12);
+  });
+
+  if (!orbitsRoundLocked && orbitsHoverAu > 0) {
+    const r = orbitsHoverAu * orbitsScale;
+    ctx.strokeStyle = "rgba(255,181,71,0.20)";
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.arc(orbitsCx, orbitsCy, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  if (orbitsDraftAu > 0) {
+    const r = orbitsDraftAu * orbitsScale;
+    ctx.strokeStyle = orbitsRoundLocked ? "rgba(255,122,89,0.95)" : "#ffb547";
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(orbitsCx, orbitsCy, r, 0, Math.PI * 2);
+    ctx.stroke();
+  }
+
+  if (extra && extra.correctAu) {
+    const r = extra.correctAu * orbitsScale;
+    ctx.strokeStyle = "rgba(74,222,128,0.95)";
+    ctx.setLineDash([7, 4]);
+    ctx.lineWidth = 2.5;
+    ctx.beginPath();
+    ctx.arc(orbitsCx, orbitsCy, r, 0, Math.PI * 2);
+    ctx.stroke();
+    ctx.setLineDash([]);
+  }
+
+  // Sun
+  const sunGrad = ctx.createRadialGradient(orbitsCx, orbitsCy, 0, orbitsCx, orbitsCy, 22);
+  sunGrad.addColorStop(0, "#fff3a0");
+  sunGrad.addColorStop(0.45, "#ffb547");
+  sunGrad.addColorStop(1, "rgba(255,122,89,0)");
+  ctx.fillStyle = sunGrad;
+  ctx.beginPath();
+  ctx.arc(orbitsCx, orbitsCy, 22, 0, Math.PI * 2);
+  ctx.fill();
+  ctx.fillStyle = "#fff8d0";
+  ctx.beginPath();
+  ctx.arc(orbitsCx, orbitsCy, 4, 0, Math.PI * 2);
+  ctx.fill();
+}
+
+function updateOrbitsReadout() {
+  const au = orbitsDraftAu;
+  $("orbits-readout").textContent = au > 0
+    ? `Your orbit: ${au.toFixed(2)} AU  (1 AU = Earth–Sun distance)`
+    : "Click in the canvas to set the orbital radius.";
+}
+
+function scoreOrbit(drawnAu, actualAu, maxPts) {
+  if (drawnAu <= 0) return 0;
+  const err = Math.abs(drawnAu - actualAu) / actualAu;
+  if (err <= 0.10) return maxPts;
+  if (err >= 0.80) return 0;
+  return maxPts * (1 - (err - 0.10) / 0.70);
+}
+
+function startOrbitsRound() {
+  orbitsDraftAu = 0;
+  orbitsHoverAu = 0;
+  orbitsRoundLocked = false;
+  const r = game.rounds[roundIdx];
+  $("orbits-target-name").textContent = r.planet;
+  $("orbits-round-indicator").textContent = `Round ${roundIdx + 1} of ${game.rounds.length}`;
+  $("orbits-score-indicator").textContent = `Score: ${Math.round(totalScore)}`;
+  $("orbits-feedback").textContent = "";
+  $("orbits-feedback").className = "feedback";
+  $("orbits-submit-btn").disabled = true;
+  $("orbits-nudge-down").disabled = true;
+  $("orbits-nudge-up").disabled = true;
+  updateOrbitsReadout();
+  renderOrbitsCanvas();
+}
+
+function nudgeOrbit(delta) {
+  if (orbitsRoundLocked) return;
+  orbitsDraftAu = Math.max(0, orbitsDraftAu + delta);
+  updateOrbitsReadout();
+  renderOrbitsCanvas();
+}
+
+$("orbits-nudge-down").addEventListener("click", () => nudgeOrbit(-0.1));
+$("orbits-nudge-up").addEventListener("click", () => nudgeOrbit(0.1));
+
+$("orbits-submit-btn").addEventListener("click", () => {
+  if (orbitsRoundLocked || orbitsDraftAu <= 0) return;
+  orbitsRoundLocked = true;
+  const r = game.rounds[roundIdx];
+  const maxPerRound = MAX_TOTAL_POINTS / game.rounds.length;
+  const pts = scoreOrbit(orbitsDraftAu, r.distanceAu, maxPerRound);
+  orbitsLocked.push({ planet: r.planet, drawnAu: orbitsDraftAu, actualAu: r.distanceAu, pts });
+  totalScore += pts;
+  breakdown.push({
+    answer: `${r.planet} at ${r.distanceAu.toFixed(2)} AU`,
+    guess: `${orbitsDraftAu.toFixed(2)} AU`,
+    correct: pts > 0,
+    points: pts,
+    elapsedSec: 0
+  });
+  renderOrbitsCanvas({ correctAu: r.distanceAu });
+  $("orbits-score-indicator").textContent = `Score: ${Math.round(totalScore)}`;
+  $("orbits-submit-btn").disabled = true;
+  $("orbits-nudge-down").disabled = true;
+  $("orbits-nudge-up").disabled = true;
+  const fb = $("orbits-feedback");
+  const errPct = Math.abs(orbitsDraftAu - r.distanceAu) / r.distanceAu * 100;
+  if (pts >= maxPerRound * 0.99) {
+    fb.textContent = `Bullseye! ${r.planet} is at ${r.distanceAu.toFixed(2)} AU. +${pts.toFixed(1)} pts.`;
+    fb.className = "feedback good";
+  } else if (pts > 0) {
+    fb.textContent = `${r.planet} is at ${r.distanceAu.toFixed(2)} AU — you were off by ${errPct.toFixed(0)}%. +${pts.toFixed(1)} pts.`;
+    fb.className = "feedback";
+  } else {
+    fb.textContent = `Way off — ${r.planet} is at ${r.distanceAu.toFixed(2)} AU.`;
+    fb.className = "feedback bad";
+  }
+  setTimeout(() => {
+    roundIdx++;
+    if (roundIdx >= game.rounds.length) finishGame();
+    else startOrbitsRound();
+  }, 2200);
+});
+
+// ---------- boot ----------
 (async function init() {
   try {
     game = await loadTodaysGame();

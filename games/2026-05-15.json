@@ -1,0 +1,18 @@
+{
+  "date": "2026-05-15",
+  "type": "orbits",
+  "title": "Draw the Planet Orbits",
+  "subtitle": "Sun, Mercury, and Neptune are your only references. Place the other six.",
+  "references": [
+    { "planet": "Mercury", "distanceAu": 0.387 },
+    { "planet": "Neptune", "distanceAu": 30.069 }
+  ],
+  "rounds": [
+    { "planet": "Venus",   "distanceAu": 0.723 },
+    { "planet": "Earth",   "distanceAu": 1.000 },
+    { "planet": "Mars",    "distanceAu": 1.524 },
+    { "planet": "Jupiter", "distanceAu": 5.203 },
+    { "planet": "Saturn",  "distanceAu": 9.537 },
+    { "planet": "Uranus",  "distanceAu": 19.191 }
+  ]
+}

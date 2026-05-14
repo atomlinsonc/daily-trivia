@@ -1,5 +1,6 @@
 {
   "games": [
-    { "date": "2026-05-14", "title": "Guess the Chain Restaurant" }
+    { "date": "2026-05-14", "title": "Guess the Chain Restaurant" },
+    { "date": "2026-05-15", "title": "Draw the Planet Orbits" }
   ]
 }

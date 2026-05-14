@@ -173,7 +173,44 @@ button.link-btn:hover { color: var(--text); background: transparent; }
   color: var(--muted);
   margin-bottom: 12px;
 }
-#score-indicator { color: var(--accent); font-weight: 600; }
+#score-indicator, #orbits-score-indicator { color: var(--accent); font-weight: 600; }
+
+.orbits-target { margin-bottom: 10px; }
+.orbits-target h3 { margin: 0 0 4px; }
+.orbits-target h3 span { color: var(--accent); }
+.canvas-wrap {
+  background: var(--bg-elev);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 10px;
+  display: flex;
+  justify-content: center;
+  box-shadow: var(--shadow);
+}
+#orbit-canvas {
+  display: block;
+  max-width: 100%;
+  height: auto;
+  cursor: crosshair;
+  border-radius: 8px;
+}
+.orbits-controls {
+  margin-top: 12px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.orbits-buttons { display: flex; gap: 6px; align-items: center; }
+.orbits-buttons .link-btn {
+  background: var(--bg-elev-2);
+  border: 1px solid var(--border);
+  padding: 8px 10px;
+  border-radius: 8px;
+  text-decoration: none;
+}
+.orbits-buttons .link-btn:disabled { opacity: 0.4; cursor: not-allowed; }
 
 .image-wrap {
   background: var(--bg-elev);
